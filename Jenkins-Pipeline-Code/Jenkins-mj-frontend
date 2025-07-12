@@ -91,26 +91,29 @@ pipeline {
             steps {
                 dir('Kubernetes-Manifests-file/Frontend') {
                     sshagent(['git-cred']) {
+     
                         sh '''
                             git config user.email "mjcmathew@gmail.com"
                             git config user.name "pythonkid2"
-        
+                        
+                            git status
                             BUILD_NUMBER=${BUILD_NUMBER}
                             echo "Build Number: $BUILD_NUMBER"
-        
+                        
                             imageTag=$(grep -oP '(?<=frontend:)[^ ]+' deployment.yaml || echo "none")
                             echo "Current image tag: $imageTag"
-        
+                        
                             if [ "$imageTag" != "$BUILD_NUMBER" ]; then
                                 sed -i "s|${AWS_ECR_REPO_NAME}:${imageTag}|${AWS_ECR_REPO_NAME}:${BUILD_NUMBER}|" deployment.yaml
                                 git add deployment.yaml
                                 git commit -m "Update deployment image to version ${BUILD_NUMBER}" || echo "Nothing to commit"
-                                git remote set-url origin git@github.com:pythonkid2/End-to-End-Kubernetes-Three-Tier-DevSecOps-Mern-Project.git
+                                git remote set-url origin git@github.com:${GIT_USER_NAME}/${GIT_REPO_NAME}.git
                                 git push origin ${GIT_BRANCH}
                             else
                                 echo "Image tag already up-to-date, no changes made."
                             fi
                         '''
+
                     }
                 }
             }
