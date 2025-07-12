@@ -86,22 +86,10 @@ pipeline {
      //   }
         stage('Update Deployment file') {
             environment {
-                GIT_REPO_NAME = "End-to-End-Kubernetes-Three-Tier-DevSecOps-Project"
-                GIT_USER_NAME = "pythonkid2"
                 GIT_BRANCH = "master"
             }
             steps {
                 dir('Kubernetes-Manifests-file/Frontend') {
-                    // Checkout the repo using SSH
-                    checkout([$class: 'GitSCM',
-                        branches: [[name: "*/${GIT_BRANCH}"]],
-                        userRemoteConfigs: [[
-                            url: "git@github.com:pythonkid2/End-to-End-Kubernetes-Three-Tier-DevSecOps-Mern-Project.git",
-                            credentialsId: 'git-cred'
-                        ]]
-                    ])
-        
-                    // Use sshagent to push
                     sshagent(['git-cred']) {
                         sh '''
                             git config user.email "mjcmathew@gmail.com"
@@ -126,6 +114,7 @@ pipeline {
                 }
             }
         }
+
 
     }
 }
