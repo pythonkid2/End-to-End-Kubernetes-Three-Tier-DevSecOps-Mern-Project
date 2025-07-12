@@ -92,17 +92,17 @@ pipeline {
             }
             steps {
                 dir('Kubernetes-Manifests-file/Frontend') {
-                    // Checkout the repo with credentials
+                    // Checkout the repo using SSH
                     checkout([$class: 'GitSCM',
                         branches: [[name: "*/${GIT_BRANCH}"]],
                         userRemoteConfigs: [[
-                            url: "git@github.com:pythonkid2/End-to-End-Kubernetes-Three-Tier-DevSecOps-Project.git",
+                            url: "git@github.com:${GIT_USER_NAME}/${GIT_REPO_NAME}.git",
                             credentialsId: 'git-cred'
                         ]]
                     ])
         
-                    // Modify the deployment file and commit
-                    withCredentials([string(credentialsId: 'git-cred', variable: 'GITHUB_TOKEN')]) {
+                    // Use sshagent to push
+                    sshagent(['git-cred']) {
                         sh '''
                             git config user.email "mjcmathew@gmail.com"
                             git config user.name "pythonkid2"
@@ -116,8 +116,8 @@ pipeline {
                             if [ "$imageTag" != "$BUILD_NUMBER" ]; then
                                 sed -i "s|${AWS_ECR_REPO_NAME}:${imageTag}|${AWS_ECR_REPO_NAME}:${BUILD_NUMBER}|" deployment.yaml
                                 git add deployment.yaml
-                                git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                                git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git HEAD:${GIT_BRANCH}
+                                git commit -m "Update deployment image to version ${BUILD_NUMBER}" || echo "Nothing to commit"
+                                git push origin ${GIT_BRANCH}
                             else
                                 echo "Image tag already up-to-date, no changes made."
                             fi
@@ -126,6 +126,7 @@ pipeline {
                 }
             }
         }
+
     }
 }
 
