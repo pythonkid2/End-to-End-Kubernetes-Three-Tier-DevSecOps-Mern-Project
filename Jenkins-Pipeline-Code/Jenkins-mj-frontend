@@ -94,14 +94,17 @@ pipeline {
                 dir('Kubernetes-Manifests-file/Frontend') {
                     sshagent(['git-cred']) {
                         sh """
+                            set -e
+                            set -x
+
                             git config user.email "mjcmathew@gmail.com"
                             git config user.name "pythonkid2"
 
-                            echo "Before update:"
+                            echo "====== BEFORE UPDATE ======"
                             grep "image:" deployment.yaml || echo "No image line found"
 
-                            imageTag=\$(grep -oP '(?<=${AWS_ECR_REPO_NAME}:)[0-9]+' deployment.yaml || echo "none")
-                            echo "Current image tag: \$imageTag"
+                            imageTag=\$(grep -oP "(?<=${AWS_ECR_REPO_NAME}:)[0-9]+" deployment.yaml || echo "none")
+                            echo "Extracted imageTag: \$imageTag"
 
                             if [ "\$imageTag" != "${BUILD_NUMBER}" ]; then
                                 currentImage="${REPOSITORY_URI}${AWS_ECR_REPO_NAME}:\$imageTag"
@@ -110,8 +113,10 @@ pipeline {
 
                                 sed -i "s|\$currentImage|\$newImage|" deployment.yaml
 
-                                echo "After update:"
+                                echo "====== AFTER UPDATE ======"
                                 grep "image:" deployment.yaml
+                                echo "====== GIT DIFF ======"
+                                git diff deployment.yaml || echo "No changes detected by git diff"
 
                                 git add deployment.yaml
                                 git commit -m "Update deployment image to version ${BUILD_NUMBER}" || echo "Nothing to commit"
