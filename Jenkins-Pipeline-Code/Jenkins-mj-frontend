@@ -96,7 +96,7 @@ pipeline {
                     checkout([$class: 'GitSCM',
                         branches: [[name: "*/${GIT_BRANCH}"]],
                         userRemoteConfigs: [[
-                            url: "https://github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git",
+                            url: "git@github.com:pythonkid2/End-to-End-Kubernetes-Three-Tier-DevSecOps-Project.git",
                             credentialsId: 'git-cred'
                         ]]
                     ])
