@@ -10,6 +10,9 @@ pipeline {
         AWS_ECR_REPO_NAME = credentials('ECR_REPO2')
         AWS_DEFAULT_REGION = 'us-east-1'
         REPOSITORY_URI = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/"
+        GIT_REPO_NAME = "End-to-End-Kubernetes-Three-Tier-DevSecOps-Mern-Project"
+        GIT_USER_NAME = "pythonkid2"
+        GIT_BRANCH = "master"
     }
     stages {
         stage('Cleaning Workspace') {
